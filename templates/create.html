@@ -1,0 +1,10 @@
+<html>
+  <body>
+    <form method="POST" action="/create">
+      {{ form.csrf_token }}
+      {{ form.email.label }} {{ form.email }}
+      {{ form.password.label }} {{ form.password }}
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
