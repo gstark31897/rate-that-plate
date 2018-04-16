@@ -1,0 +1,13 @@
+<html>
+  <body>
+    {% if g.user.is_authenticated %}
+        <p>Welcome {{ g.user.email }}</p>
+        <a href="/user/logout">Logout</a>
+        <a href="/user/plates/view">My Plates</a>
+    {% else %}
+        <a href="/user/login">Login</a>
+        <a href="/user/create">Create an Account</a>
+    {% endif %}
+    <a href="/plate/search">Search Plates</a>
+  </body>
+</html>

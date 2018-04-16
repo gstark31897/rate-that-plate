@@ -1,5 +1,6 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request, g
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
@@ -8,11 +9,15 @@ from wtforms.validators import DataRequired
 import argon2
 import binascii
 import os
+import time
 
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SECRET_KEY'] = binascii.b2a_hex(os.urandom(128)).decode('ascii')
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.login_view = 'user_login'
+login_manager.init_app(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,53 +36,180 @@ class User(db.Model):
         user = User(email=email, password_hash=password_hash, password_salt=password_salt)
         db.session.add(user)
         db.session.commit()
+        return user
 
     @classmethod
     def check(cls, email, password):
-        for user in User.query.filter(email==email):
+        for user in User.query.filter(User.email==email):
             if user.password_hash == cls.hash_password(password, user.password_salt):
-                return True
+                return user
+        return None
+
+    def is_authenticated(self):
+        return True
+ 
+    def is_active(self):
+        return True
+ 
+    def is_anonymous(self):
         return False
+ 
+    def get_id(self):
+        return self.id
+
+    @login_manager.user_loader
+    def get_user(id):
+        return User.query.get(id==int(id))
+
 
 class UserCreateForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
 
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    leaver_id = db.Column(db.Integer)
-    receiver_id = db.Column(db.Integer)
-    message = db.Column(db.String(1024))
-    thumbs_up = db.Column(db.Boolean())
-    date = db.Column(db.DateTime(6))
-    viewed = db.Column(db.Boolean())
 
 class UserLoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
 
+
+class Plate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    state = db.Column(db.String(256))
+    number = db.Column(db.String(256))
+
+    @classmethod
+    def create(cls, state, number):
+        plate = Plate(state=state, number=number, user_id=-1)
+        db.session.add(plate)
+        db.session.commit()
+        return plate
+
+    @classmethod
+    def get(cls, state, number):
+        for plate in Plate.query.filter(Plate.state==state, Plate.number==number):
+            return plate
+        return None
+
+    def assign(self, user_id):
+        if self.user_id != -1:
+            return
+        self.user_id = user_id
+        db.session.commit()
+
+
+class PlateForm(FlaskForm):
+    state = StringField('state', validators=[DataRequired()])
+    number = StringField('number', validators=[DataRequired()])
+
+
+class PlateSearchForm(FlaskForm):
+    state = StringField('state', validators=[])
+    number = StringField('number', validators=[])
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    leaver_id = db.Column(db.Integer)
+    plate_id = db.Column(db.Integer)
+    message = db.Column(db.String(1024))
+    thumbs_up = db.Column(db.Boolean())
+    date = db.Column(db.DateTime(6))
+    viewed = db.Column(db.Boolean())
+
+    @classmethod
+    def create(cls, leaver_id, plate_number, message):
+        comment = Comment(leaver_id=leaver_id, plate_number=plate_number, message=message)
+        db.session.add(comment)
+        db.session.commit()
+
+
+class CommentForm(FlaskForm):
+    message = StringField('comment', validators=[DataRequired()])
+
+
 db.create_all()
+
+@app.before_request
+def before_request():
+    g.user = current_user
 
 @app.route('/')
 def index():
-    #User.create('asdf', 'asdf', 'asdf')
-    #print(User.check('asdf', 'fdsa'))
-    return 'Hello World'
+    return render_template('index.html')
 
-@app.route('/create', methods=['GET', 'POST'])
-def create():
+@app.route('/user/create', methods=['GET', 'POST'])
+def user_create():
     form = UserCreateForm()
     if form.validate_on_submit():
-        User.create(form.email.data, form.password.data)
+        user = User.create(form.email.data, form.password.data)
+        login_user(user)
         return redirect('/')
-    return render_template('create.html', form=form)
+    return render_template('user_create.html', form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/user/login', methods=['GET', 'POST'])
+def user_login():
     form = UserLoginForm()
     if form.validate_on_submit():
-        return str(User.check(form.email.data, form.password.data))
-    return render_template('login.html', form=form)
+        user = User.check(form.email.data, form.password.data)
+        if user:
+            login_user(user)
+            return redirect('/')
+    return render_template('user_login.html', form=form)
+
+@app.route('/user/logout')
+def user_logout():
+    logout_user()
+    return redirect('/') 
+
+@app.route('/user/plates/view')
+@login_required
+def user_plates_view():
+    plates = Plate.query.filter(Plate.user_id==g.user.id)
+    form = PlateForm()
+    return render_template('user_plates_view.html', plates=plates, form=form)
+
+@app.route('/user/plates/add', methods=['POST'])
+@login_required
+def user_plates_add():
+    form = PlateForm()
+    if form.validate_on_submit():
+        plate = Plate.get(form.state.data, form.number.data)
+        if plate is None:
+            plate = Plate.create(form.state.data, form.number.data)
+        if plate.user_id == -1:
+            plate.assign(g.user.id)
+        else:
+            print('someone owns this already')
+    return redirect('/user/plates/view')
+
+@app.route('/plate/<state>/<number>', methods=['GET', 'POST'])
+def plate(state, number):
+    plate = Plate.get(state, number)
+    if plate is None:
+        return 'plate not found', 404
+    form = CommentForm()
+    if form.validate_on_submit():
+        Comment.create(current_user.id, number, form.message.data)
+    comments = Comment.query.filter(Comment.plate_id==plate.id)
+    return render_template('plate.html', number=number, comments=comments, form=form)
+
+@app.route('/plate/register', methods=['POST'])
+def plate_register():
+    form = PlateForm()
+    if form.validate_on_submit():
+        Plate.create(form.state.data, form.number.data)
+        return redirect('/plate/{}/{}'.format(form.state.data, form.number.data))
+    return redirect('/plate/search')
+
+@app.route('/plate/search', methods=['GET', 'POST'])
+def plate_search():
+    form = PlateSearchForm()
+    if form.validate_on_submit():
+        plates = Plate.query.filter(Plate.state.contains(form.state.data))
+    else:
+        plates = Plate.query.filter()
+    return render_template('plate_search.html', plates=plates, form=form)
 
 app.run(host='127.0.0.1', port=8080)
 

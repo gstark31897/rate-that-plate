@@ -1,6 +1,6 @@
 <html>
   <body>
-    <form method="POST" action="/create">
+    <form method="POST" action="/user/login">
       {{ form.csrf_token }}
       {{ form.email.label }} {{ form.email }}
       {{ form.password.label }} {{ form.password }}

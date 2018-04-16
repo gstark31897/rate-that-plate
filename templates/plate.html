@@ -1,0 +1,13 @@
+<html>
+  <body>
+    <h1>{{ number }}</h1>
+    <form method="POST" action="">
+      {{ form.csrf_token }}
+      {{ form.message.label }} {{ form.message }}
+      <input type="submit" value="Submit">
+    </form>
+    {% for comment in comments %}
+        <p>{{ comment.message }}</p>
+    {% endfor %}
+  </body>
+</html>

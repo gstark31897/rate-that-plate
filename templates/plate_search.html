@@ -1,0 +1,16 @@
+<html>
+  <body>
+    <form method="POST" action="/plate/search">
+      {{ form.csrf_token }}
+      {{ form.state.label }} {{ form.state }}
+      {{ form.number.label }} {{ form.number }}
+      <input type="submit" value="Submit">
+    </form>
+    {% for plate in plates %}
+      <div><b>{{ plate.state }}</b> {{ plate.number }}: <a href="/plate/{{ plate.state }}/{{ plate.number }}">comments</a></div>
+    {% endfor %}
+    {% if plates.count() == 0 %}
+      <p>No plates found, register?</p>
+    {% endif %}
+  </body>
+</html>
