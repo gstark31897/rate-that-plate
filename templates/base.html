@@ -1,0 +1,28 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">RateThatPlate</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        {% if g.user.is_authenticated %}
+          <li><a href="/user/plates/view">My Plates</a></li>
+        {% endif %}
+        <li><a href="/plate/search">Search</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {% if g.user.is_authenticated %}
+          <li><a href="/user/logout">Logout</a></li>
+        {% else %}
+          <li><a href="/user/login">Login</a></li>
+          <li><a href="/user/create">Create</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endblock %}

@@ -6,6 +6,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
 
+from flask_bootstrap import Bootstrap
+
 import argon2
 import binascii
 import os
@@ -14,6 +16,7 @@ import time
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SECRET_KEY'] = binascii.b2a_hex(os.urandom(128)).decode('ascii')
+Bootstrap(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.login_view = 'user_login'

@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+  
+{% block content %}
 <html>
   <body>
     <h1><b>{{ plate.state }}</b> {{ plate.number }}</h1>
@@ -15,3 +18,4 @@
     {% endfor %}
   </body>
 </html>
+{% endblock %}
