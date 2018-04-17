@@ -1,11 +1,15 @@
 <html>
   <body>
-    <h1>{{ number }}</h1>
+    <h1><b>{{ plate.state }}</b> {{ plate.number }}</h1>
+    {% if g.user.is_authenticated %}
     <form method="POST" action="">
       {{ form.csrf_token }}
       {{ form.message.label }} {{ form.message }}
       <input type="submit" value="Submit">
     </form>
+    {% else %}
+        <p>Create an account or login to leave a comment: <a href="/user/create">Create</a> <a href="/user/login">Login</a></p>
+    {% endif %}
     {% for comment in comments %}
         <p>{{ comment.message }}</p>
     {% endfor %}

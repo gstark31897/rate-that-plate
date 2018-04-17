@@ -118,8 +118,8 @@ class Comment(db.Model):
     viewed = db.Column(db.Boolean())
 
     @classmethod
-    def create(cls, leaver_id, plate_number, message):
-        comment = Comment(leaver_id=leaver_id, plate_number=plate_number, message=message)
+    def create(cls, leaver_id, plate_id, message):
+        comment = Comment(leaver_id=leaver_id, plate_id=plate_id, message=message)
         db.session.add(comment)
         db.session.commit()
 
@@ -190,9 +190,9 @@ def plate(state, number):
         return 'plate not found', 404
     form = CommentForm()
     if form.validate_on_submit():
-        Comment.create(current_user.id, number, form.message.data)
+        Comment.create(current_user.id, plate.id, form.message.data)
     comments = Comment.query.filter(Comment.plate_id==plate.id)
-    return render_template('plate.html', number=number, comments=comments, form=form)
+    return render_template('plate.html', plate=plate, comments=comments, form=form)
 
 @app.route('/plate/register', methods=['POST'])
 def plate_register():
