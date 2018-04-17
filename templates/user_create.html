@@ -3,12 +3,7 @@
 {% block content %}
 <html>
   <body>
-    <form method="POST" action="/user/create">
-      {{ form.csrf_token }}
-      {{ form.email.label }} {{ form.email }}
-      {{ form.password.label }} {{ form.password }}
-      <input type="submit" value="Submit">
-    </form>
+    {{ wtf.quick_form(form) }}
   </body>
 </html>
 {% endblock %}

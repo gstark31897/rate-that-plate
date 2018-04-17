@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
 
 from flask_bootstrap import Bootstrap
@@ -68,11 +68,13 @@ class User(db.Model):
 class UserCreateForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+    submit = SubmitField('submit')
 
 
 class UserLoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+    submit = SubmitField('submit')
 
 
 class Plate(db.Model):
@@ -104,11 +106,13 @@ class Plate(db.Model):
 class PlateForm(FlaskForm):
     state = StringField('state', validators=[DataRequired()])
     number = StringField('number', validators=[DataRequired()])
+    submit = SubmitField('submit')
 
 
 class PlateSearchForm(FlaskForm):
     state = StringField('state', validators=[])
     number = StringField('number', validators=[])
+    submit = SubmitField('submit')
 
 
 class Comment(db.Model):
@@ -129,6 +133,7 @@ class Comment(db.Model):
 
 class CommentForm(FlaskForm):
     message = StringField('comment', validators=[DataRequired()])
+    submit = SubmitField('submit')
 
 
 db.create_all()
