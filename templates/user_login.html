@@ -1,9 +1,15 @@
 {% extends "base.html" %}
   
 {% block content %}
-<html>
-  <body>
-    {{ wtf.quick_form(form) }}
-  </body>
-</html>
+	<div class="text-center" style="padding: 50px 0; width: 50%">
+		<div class="logo">login</div>
+		<div class="login-form-1">
+			<form id="login-form" class="text-left">
+				{{ wtf.quick_form(form) }}
+			</form>
+		</div>
+		<div class="etc-login-form">
+			<p>new user? <a href="/user/create">create an account</a></p>
+		</div>
+	</div>
 {% endblock %}

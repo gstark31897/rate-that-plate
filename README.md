@@ -1,2 +1,2 @@
-# rate-that-plate
-A driver peer review system
+# Rate That Plate
+Have you ever been on the road and encountered a rude driver? Or perhaps your experience with another driver was a positive one and you wished you could give them a compliment. Rate That Plate provides an interface which allows authenticated users to leave comments on other drivers’ road etiquette based on their license plate number. Users will be able to search registered license plate numbers and post comments as well as ‘vote’ with a thumbs up or thumbs down on other comments.
