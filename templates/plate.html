@@ -1,17 +1,19 @@
 {% extends "base.html" %}
   
 {% block content %}
-<html>
-  <body>
-    <h1><b>{{ plate.state }}</b> {{ plate.number }}</h1>
-    {% if g.user.is_authenticated %}
-    {{ wtf.quick_form(form) }}
-    {% else %}
-        <p>Create an account or login to leave a comment: <a href="/user/create">Create</a> <a href="/user/login">Login</a></p>
-    {% endif %}
+<div class="container">
+    <h1>State: {{ plate.state }}<h1>
+    <h1>Number: {{ plate.number }}</h1>
+    <h3>Comments</h3>
+    <div>
+      {% if g.user.is_authenticated %}
+      {{ wtf.quick_form(form) }}
+      {% else %}
+        <p><a href="/user/create">Create</a> an account or <a href="/user/login">Login</a> to leave a comment</p>
+      {% endif %}
+    </div>
     {% for comment in comments %}
-        <p>{{ comment.message }}</p>
+        <pre>{{ comment.message }}</pre>
     {% endfor %}
-  </body>
-</html>
+</div>
 {% endblock %}

@@ -1,20 +1,18 @@
 {% extends "base.html" %}
   
 {% block content %}
-	<div class="text-center" style="padding: 25px 25px; width:450px; margin-left:36%; background:#ddd; border-radius:5px">
-		<div class="logo">search</div>
-		<form>
-			<div class="form-group-row" style="width:75%; margin-left: 12%; padding-top: 15px">
-				{{ wtf.quick_form(form) }}
-				{% for plate in plates %}
-				  <div><b>{{ plate.state }}</b> {{ plate.number }}: <a href="/plate/{{ plate.state }}/{{ plate.number }}">comments</a></div>
-				{% endfor %}
-				{% if plates.count() == 0 %}
-				  <div class="etc-login-form" style="padding-top: 10px">
-				  	<p>no plates found? register</p>
-				  </div>
-				{% endif %}
-			</div>
-		</form>
-	</div>
+  <div class="text-center" style="padding: 25px 25px; width:450px; margin-left:36%; background:#ddd; border-radius:5px">
+    <div class="logo">search</div>
+      <div class="form-group-row" style="width:75%; margin-left: 12%; padding-top: 15px">
+        {{ wtf.quick_form(form) }}
+        {% for plate in plates %}
+          <div><b>{{ plate.state }}</b> {{ plate.number }}: <a href="/plate/{{ plate.state }}/{{ plate.number }}">comments</a></div>
+        {% endfor %}
+        {% if plates.count() == 0 %}
+          <div class="etc-login-form" style="padding-top: 10px">
+            <p>no plates found? register</p>
+          </div>
+        {% endif %}
+      </div>
+  </div>
 {% endblock %}

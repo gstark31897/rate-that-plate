@@ -1,12 +1,27 @@
 {% extends "base.html" %}
   
 {% block content %}
-<html>
-  <body>
-    {% for plate in plates %}
-      <div><b>{{ plate.state }}</b>{{ plate.number }}: <a href="/plate/{{ plate.state }}/{{ plate.number }}">comments</a></div>
-    {% endfor %}
-    {{ wtf.quick_form(form, action="/user/plates/add") }}
-  </body>
-</html>
+<div class="container">
+  <h3>My Plates</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>State</th>
+        <th>Number</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plate in plates %}
+      <tr>
+        <td>{{ plate.state }}</td>
+        <td>{{ plate.number }}</td>
+        <td><a href="/plate/{{ plate.state }}/{{ plate.number }}">comments</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h3>Add a Plate</h3>
+  {{ wtf.quick_form(form, action="/user/plates/add") }}
+</div>
 {% endblock %}

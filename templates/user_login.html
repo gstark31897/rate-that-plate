@@ -2,15 +2,13 @@
 {% block title %}Login User{% endblock %}
 
 {% block content %}
-	<div class="text-center" style="padding: 25px 25px; width:250px; margin-left:42%; background:#ddd; border-radius:5px;">
-		<div class="logo">login</div>
-		<div class="login-form-1" style="width: 200px">
-			<form id="login-form" class="text-left">
-				{{ wtf.quick_form(form) }}
-			</form>
-		</div>
-		<div class="etc-login-form" style="padding-top: 10px;">
-			<p>new user? <a href="/user/create">create an account</a></p>
-		</div>
-	</div>
+  <div class="text-center" style="padding: 25px 25px; width:250px; margin-left:42%; background:#ddd; border-radius:5px;">
+    <div class="logo">login</div>
+    <div class="login-form-1" style="width: 200px">
+        {{ wtf.quick_form(form) }}
+    </div>
+    <div class="etc-login-form" style="padding-top: 10px;">
+      <p>new user? <a href="/user/create">create an account</a></p>
+    </div>
+  </div>
 {% endblock %}
