@@ -16,7 +16,7 @@ import os
 import time
 
 app = Flask(__name__, template_folder='templates')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URI']
 app.config['SECRET_KEY'] = binascii.b2a_hex(os.urandom(128)).decode('ascii')
 Bootstrap(app)
 db = SQLAlchemy(app)
@@ -90,7 +90,6 @@ class Plate(db.Model):
     @classmethod
     def create(cls, state, number):
         plate = Plate(state=state, number=number, user_id=-1)
-        db.session.add(plate)
         db.session.commit()
         return plate
 
