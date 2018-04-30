@@ -2,9 +2,11 @@ from flask import Flask, render_template, redirect, request, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
+from sqlalchemy.sql import func
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Regexp
 
 from flask_bootstrap import Bootstrap
 
@@ -62,17 +64,19 @@ class User(db.Model):
 
     @login_manager.user_loader
     def get_user(id):
-        return User.query.get(id==int(id))
+        for user in User.query.filter(User.id==id):
+            return user
+        return None
 
 
 class UserCreateForm(FlaskForm):
-    email = StringField('email', validators=[DataRequired()])
+    email = StringField('email', validators=[DataRequired(), Regexp('^[A-z0-9]+\\@[A-z0-9]+\\.[A-z]+$')])
     password = PasswordField('password', validators=[DataRequired()])
     submit = SubmitField('submit')
 
 
 class UserLoginForm(FlaskForm):
-    email = StringField('email', validators=[DataRequired()])
+    email = StringField('email', validators=[DataRequired(), Regexp('^[A-z0-9]+\\@[A-z0-9]+\\.[A-z]+$')])
     password = PasswordField('password', validators=[DataRequired()])
     submit = SubmitField('submit')
 
@@ -95,6 +99,12 @@ class Plate(db.Model):
         for plate in Plate.query.filter(Plate.state==state, Plate.number==number):
             return plate
         return None
+
+    @property
+    def score(self):
+        for item in db.session.query(func.sum(Comment.thumbs_up).label('score')).filter(Comment.plate_id==self.id):
+            return item.score
+        return 0
 
     def assign(self, user_id):
         if self.user_id != -1:
@@ -120,7 +130,7 @@ class Comment(db.Model):
     leaver_id = db.Column(db.Integer)
     plate_id = db.Column(db.Integer)
     message = db.Column(db.String(1024))
-    thumbs_up = db.Column(db.Boolean())
+    thumbs_up = db.Column(db.Integer)
     date = db.Column(db.DateTime(6))
     viewed = db.Column(db.Boolean())
 
@@ -136,8 +146,6 @@ class CommentForm(FlaskForm):
     thumbs_up = SelectMultipleField('thumbs up', choices=[('yes', 'yes'),('no', 'no')])
     submit = SubmitField('submit')
 
-
-db.create_all()
 
 @app.before_request
 def before_request():
@@ -199,7 +207,10 @@ def plate(state, number):
         return 'plate not found', 404
     form = CommentForm()
     if form.validate_on_submit():
-        Comment.create(current_user.id, plate.id, form.message.data, form.thumbs_up.data[0]=='yes')
+        thumbs_up = -1
+        if form.thumbs_up.data[0] == 'yes':
+            thumbs_up = 1
+        Comment.create(current_user.id, plate.id, form.message.data, thumbs_up)
     comments = Comment.query.filter(Comment.plate_id==plate.id)
     return render_template('plate.html', plate=plate, comments=comments, form=form)
 
@@ -220,5 +231,6 @@ def plate_search():
         plates = Plate.query.filter()
     return render_template('plate_search.html', plates=plates, form=form)
 
+db.create_all()
 app.run(host='127.0.0.1', port=8080)
 

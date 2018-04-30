@@ -1,14 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Create New User{% endblock %}
+{% block title %}Create Account{% endblock %}
   
 {% block content %}
-	<div class="text-center" style="padding: 25px 25px; width:250px; margin-left:42%; background:#ddd; border-radius:5px">
-		<div class="logo">sign up</div>
-		<div class="login-form-1" style="width: 200px">
-				{{ wtf.quick_form(form) }}
-		</div>
-		<div class="etc-login-form" style="padding-top: 10px">
-			<p>already have an account? <a href="/user/login">login</a></p>
-		</div>
-	</div>
+<div class="container">
+  <h3>Create Account</h3>
+  {{ wtf.quick_form(form) }}
+  <div class="etc-login-form" style="padding-top: 10px">
+    <p>already have an account? <a href="/user/login">login</a></p>
+  </div>
+</div>
 {% endblock %}

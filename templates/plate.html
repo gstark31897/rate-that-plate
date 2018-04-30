@@ -4,6 +4,7 @@
 <div class="container">
     <h1>State: {{ plate.state }}<h1>
     <h1>Number: {{ plate.number }}</h1>
+    <h3>Score: {{ plate.score }}</h3>
     <h3>Comments</h3>
     <div>
       {% if g.user.is_authenticated %}
@@ -13,7 +14,16 @@
       {% endif %}
     </div>
     {% for comment in comments %}
-        <pre>{{ comment.message }}</pre>
+      <div class="well">
+        <p style="float: left;">{{ comment.message }}</p>
+        {% if comment.thumbs_up == 1 %}
+          <i class="glyphicon glyphicon-thumbs-up" style="float: right;"></i>
+        {% else %}
+          <i class="glyphicon glyphicon-thumbs-down" style="float: right;"></i>
+        {% endif %}
+        <div class="clear: both;"></div>
+        <br>
+      </div>
     {% endfor %}
 </div>
 {% endblock %}
