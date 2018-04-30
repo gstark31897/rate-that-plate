@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SelectMultipleField, SubmitField
 from wtforms.validators import DataRequired
 
 from flask_bootstrap import Bootstrap
@@ -125,14 +125,15 @@ class Comment(db.Model):
     viewed = db.Column(db.Boolean())
 
     @classmethod
-    def create(cls, leaver_id, plate_id, message):
-        comment = Comment(leaver_id=leaver_id, plate_id=plate_id, message=message)
+    def create(cls, leaver_id, plate_id, message, thumbs_up):
+        comment = Comment(leaver_id=leaver_id, plate_id=plate_id, message=message, thumbs_up=thumbs_up)
         db.session.add(comment)
         db.session.commit()
 
 
 class CommentForm(FlaskForm):
     message = StringField('comment', validators=[DataRequired()])
+    thumbs_up = SelectMultipleField('thumbs up', choices=[('yes', 'yes'),('no', 'no')])
     submit = SubmitField('submit')
 
 
@@ -198,7 +199,7 @@ def plate(state, number):
         return 'plate not found', 404
     form = CommentForm()
     if form.validate_on_submit():
-        Comment.create(current_user.id, plate.id, form.message.data)
+        Comment.create(current_user.id, plate.id, form.message.data, form.thumbs_up.data[0]=='yes')
     comments = Comment.query.filter(Comment.plate_id==plate.id)
     return render_template('plate.html', plate=plate, comments=comments, form=form)
 
