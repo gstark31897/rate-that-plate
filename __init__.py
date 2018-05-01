@@ -226,7 +226,7 @@ def plate_register():
 def plate_search():
     form = PlateSearchForm()
     if form.validate_on_submit():
-        plates = Plate.query.filter(Plate.state.contains(form.state.data))
+        plates = Plate.query.filter(Plate.state.contains(form.state.data), Plate.number.contains(form.number.data))
     else:
         plates = Plate.query.filter()
     return render_template('plate_search.html', plates=plates, form=form)
