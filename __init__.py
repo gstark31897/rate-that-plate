@@ -90,6 +90,7 @@ class Plate(db.Model):
     @classmethod
     def create(cls, state, number):
         plate = Plate(state=state, number=number, user_id=-1)
+        db.session.add(plate)
         db.session.commit()
         return plate
 
